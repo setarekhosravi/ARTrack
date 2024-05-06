@@ -215,7 +215,9 @@ class Tracker:
                 output_boxes.append(init_state)
                 break
 
+        time_list = []
         while True:
+            t1 = time.time()
             ret, frame = cap.read()
 
             if frame is None:
@@ -256,10 +258,16 @@ class Tracker:
                 init_state = [x, y, w, h]
                 tracker.initialize(frame, _build_init_info(init_state))
                 output_boxes.append(init_state)
+            t2 = time.time()
+            time_list.append(t2-t1)
 
         # When everything done, release the capture
         cap.release()
         cv.destroyAllWindows()
+        sum_time = np.sum(time_list)
+        avg_time = sum_time/len(time_list)
+        fps = 1/avg_time
+        print("Average Inference Time: ", avg_time, ", FPS: ", fps)
 
         if save_results:
             if not os.path.exists(self.results_dir):
@@ -286,6 +294,3 @@ class Tracker:
             return decode_img(image_file[0], image_file[1])
         else:
             raise ValueError("type of image_file should be str or list")
-
-
-
